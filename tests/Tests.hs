@@ -223,6 +223,19 @@ tests knowns = testGroup "hourglass"
                 _                     -> error "Cannot parse timezone"
         , testProperty "custom-1" $ test_property_format ("YYYY-MM-DDTH:MI:S.msusns" :: String)
         , testProperty "custom-2" $ test_property_format ("Mon DD\\t\\h YYYY at HH\\hMI\\mS\\s.p9\\n\\s" :: String)
+        , testCase "ISO 8601 date (with UTC +00:00)" $ do
+            let toParse = "2016-07-20T20:21:26+00:00"
+            let parsed  = localTimeParseE ISO8601_DateAndTime toParse
+            case parsed of
+                Left  err -> assertFailure $ "cannot parse " ++ show toParse ++ " " ++ show err
+                Right _   -> return ()
+        , testCase "ISO 8601 date (with UTC Z)" $ do
+            let toParse = "2016-07-20T20:21:26Z"
+            let parsed  = localTimeParseE ISO8601_DateAndTime toParse
+            case parsed of
+                Left  err -> assertFailure $ "cannot parse " ++ show toParse ++ " " ++ show err
+                Right (_, []) -> return ()
+                Right (_, str) -> assertFailure $ "failed to parse all the string: " ++ show str
         ]
     ]
   where toCalendarTest (i, (us, dt)) =
